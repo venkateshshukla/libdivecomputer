@@ -170,7 +170,7 @@ cressi_edy_quit (cressi_edy_device_t *device)
 
 
 dc_status_t
-cressi_edy_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+cressi_edy_device_open (dc_device_t **out, dc_context_t *context, int dev_fd)
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -190,7 +190,7 @@ cressi_edy_device_open (dc_device_t **out, dc_context_t *context, const char *na
 	device->model = 0;
 
 	// Open the device.
-	int rc = serial_open (&device->port, context, name);
+	int rc = serial_open (&device->port, context, dev_fd);
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

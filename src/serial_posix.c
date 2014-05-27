@@ -127,11 +127,11 @@ serial_enumerate (serial_callback_t callback, void *userdata)
 //
 
 int
-serial_open (serial_t **out, dc_context_t *context, const char* name)
+serial_open (serial_t **out, dc_context_t *context, int dev_fd)
 {
 	if (out == NULL)
 		return -1; // EINVAL (Invalid argument)
-
+	char *name = NULL;
 	INFO (context, "Open: name=%s", name ? name : "");
 
 	// Allocate memory.
@@ -154,7 +154,8 @@ serial_open (serial_t **out, dc_context_t *context, const char* name)
 
 	// Open the device in non-blocking mode, to return immediately
 	// without waiting for the modem connection to complete.
-	device->fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	//device->fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	device->fd = dev_fd;
 	if (device->fd == -1) {
 		SYSERROR (context, errno);
 		free (device);
