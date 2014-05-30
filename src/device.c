@@ -58,7 +58,7 @@ device_init (dc_device_t *device, dc_context_t *context, const dc_device_vtable_
 }
 
 dc_status_t
-dc_device_open (dc_device_t **out, dc_context_t *context, dc_descriptor_t *descriptor, int dev_fd)
+dc_device_open (dc_device_t **out, dc_context_t *context, dc_descriptor_t *descriptor, const char *name)
 {
 	dc_status_t rc = DC_STATUS_SUCCESS;
 	dc_device_t *device = NULL;
@@ -68,91 +68,91 @@ dc_device_open (dc_device_t **out, dc_context_t *context, dc_descriptor_t *descr
 
 	switch (dc_descriptor_get_type (descriptor)) {
 	case DC_FAMILY_SUUNTO_SOLUTION:
-		rc = suunto_solution_device_open (&device, context, dev_fd);
+		rc = suunto_solution_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_SUUNTO_EON:
-		rc = suunto_eon_device_open (&device, context, dev_fd);
+		rc = suunto_eon_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_SUUNTO_VYPER:
-		rc = suunto_vyper_device_open (&device, context, dev_fd);
+		rc = suunto_vyper_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_SUUNTO_VYPER2:
-		rc = suunto_vyper2_device_open (&device, context, dev_fd);
+		rc = suunto_vyper2_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_SUUNTO_D9:
-		rc = suunto_d9_device_open (&device, context, dev_fd, dc_descriptor_get_model (descriptor));
+		rc = suunto_d9_device_open (&device, context, name, dc_descriptor_get_model (descriptor));
 		break;
 	case DC_FAMILY_UWATEC_ALADIN:
-		rc = uwatec_aladin_device_open (&device, context, dev_fd);
+		rc = uwatec_aladin_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_UWATEC_MEMOMOUSE:
-		rc = uwatec_memomouse_device_open (&device, context, dev_fd);
+		rc = uwatec_memomouse_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_UWATEC_SMART:
 		rc = uwatec_smart_device_open (&device, context);
 		break;
 	case DC_FAMILY_UWATEC_MERIDIAN:
-		rc = uwatec_meridian_device_open (&device, context, dev_fd);
+		rc = uwatec_meridian_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_REEFNET_SENSUS:
-		rc = reefnet_sensus_device_open (&device, context, dev_fd);
+		rc = reefnet_sensus_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_REEFNET_SENSUSPRO:
-		rc = reefnet_sensuspro_device_open (&device, context, dev_fd);
+		rc = reefnet_sensuspro_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_REEFNET_SENSUSULTRA:
-		rc = reefnet_sensusultra_device_open (&device, context, dev_fd);
+		rc = reefnet_sensusultra_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_OCEANIC_VTPRO:
-		rc = oceanic_vtpro_device_open (&device, context, dev_fd);
+		rc = oceanic_vtpro_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_OCEANIC_VEO250:
-		rc = oceanic_veo250_device_open (&device, context, dev_fd);
+		rc = oceanic_veo250_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_OCEANIC_ATOM2:
-		rc = oceanic_atom2_device_open (&device, context, dev_fd);
+		rc = oceanic_atom2_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_MARES_NEMO:
-		rc = mares_nemo_device_open (&device, context, dev_fd);
+		rc = mares_nemo_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_MARES_PUCK:
-		rc = mares_puck_device_open (&device, context, dev_fd);
+		rc = mares_puck_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_MARES_DARWIN:
-		rc = mares_darwin_device_open (&device, context, dev_fd, dc_descriptor_get_model (descriptor));
+		rc = mares_darwin_device_open (&device, context, name, dc_descriptor_get_model (descriptor));
 		break;
 	case DC_FAMILY_MARES_ICONHD:
-		rc = mares_iconhd_device_open (&device, context, dev_fd, dc_descriptor_get_model (descriptor));
+		rc = mares_iconhd_device_open (&device, context, name, dc_descriptor_get_model (descriptor));
 		break;
 	case DC_FAMILY_HW_OSTC:
-		rc = hw_ostc_device_open (&device, context, dev_fd);
+		rc = hw_ostc_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_HW_FROG:
-		rc = hw_frog_device_open (&device, context, dev_fd);
+		rc = hw_frog_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_HW_OSTC3:
-		rc = hw_ostc3_device_open (&device, context, dev_fd);
+		rc = hw_ostc3_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_CRESSI_EDY:
-		rc = cressi_edy_device_open (&device, context, dev_fd);
+		rc = cressi_edy_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_CRESSI_LEONARDO:
-		rc = cressi_leonardo_device_open (&device, context, dev_fd);
+		rc = cressi_leonardo_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_ZEAGLE_N2ITION3:
-		rc = zeagle_n2ition3_device_open (&device, context, dev_fd);
+		rc = zeagle_n2ition3_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_ATOMICS_COBALT:
 		rc = atomics_cobalt_device_open (&device, context);
 		break;
 	case DC_FAMILY_SHEARWATER_PREDATOR:
-		rc = shearwater_predator_device_open (&device, context, dev_fd);
+		rc = shearwater_predator_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_SHEARWATER_PETREL:
-		rc = shearwater_petrel_device_open (&device, context, dev_fd);
+		rc = shearwater_petrel_device_open (&device, context, name);
 		break;
 	case DC_FAMILY_DIVERITE_NITEKQ:
-		rc = diverite_nitekq_device_open (&device, context, dev_fd);
+		rc = diverite_nitekq_device_open (&device, context, name);
 		break;
 	default:
 		return DC_STATUS_INVALIDARGS;

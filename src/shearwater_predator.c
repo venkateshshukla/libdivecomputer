@@ -63,7 +63,7 @@ static const dc_device_vtable_t shearwater_predator_device_vtable = {
 
 
 dc_status_t
-shearwater_predator_device_open (dc_device_t **out, dc_context_t *context, int dev_fd)
+shearwater_predator_device_open (dc_device_t **out, dc_context_t *context, const char *name)
 {
 	dc_status_t rc = DC_STATUS_SUCCESS;
 
@@ -84,7 +84,7 @@ shearwater_predator_device_open (dc_device_t **out, dc_context_t *context, int d
 	memset (device->fingerprint, 0, sizeof (device->fingerprint));
 
 	// Open the device.
-	rc = shearwater_common_open (&device->base, context, dev_fd);
+	rc = shearwater_common_open (&device->base, context, name);
 	if (rc != DC_STATUS_SUCCESS) {
 		free (device);
 		return rc;

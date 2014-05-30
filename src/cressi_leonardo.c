@@ -72,7 +72,7 @@ static const dc_device_vtable_t cressi_leonardo_device_vtable = {
 };
 
 dc_status_t
-cressi_leonardo_device_open (dc_device_t **out, dc_context_t *context, int dev_fd)
+cressi_leonardo_device_open (dc_device_t **out, dc_context_t *context, const char *name)
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -91,7 +91,7 @@ cressi_leonardo_device_open (dc_device_t **out, dc_context_t *context, int dev_f
 	device->port = NULL;
 
 	// Open the device.
-	int rc = serial_open (&device->port, context, dev_fd);
+	int rc = serial_open (&device->port, context, name);
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

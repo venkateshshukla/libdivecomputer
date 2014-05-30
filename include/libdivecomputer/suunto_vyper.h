@@ -31,7 +31,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 dc_status_t
-suunto_vyper_device_open (dc_device_t **device, dc_context_t *context, int dev_fd);
+suunto_vyper_device_open (dc_device_t **device, dc_context_t *context, const char *name);
 
 dc_status_t
 suunto_vyper_device_read_dive (dc_device_t *device, dc_buffer_t *buffer, int init);

@@ -38,7 +38,7 @@ typedef struct shearwater_common_device_t {
 } shearwater_common_device_t;
 
 dc_status_t
-shearwater_common_open (shearwater_common_device_t *device, dc_context_t *context, int dev_fd);
+shearwater_common_open (shearwater_common_device_t *device, dc_context_t *context, const char *name);
 
 dc_status_t
 shearwater_common_close (shearwater_common_device_t *device);

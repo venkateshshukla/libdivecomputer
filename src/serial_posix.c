@@ -127,11 +127,11 @@ serial_enumerate (serial_callback_t callback, void *userdata)
 //
 
 int
-serial_open (serial_t **out, dc_context_t *context, int dev_fd)
+serial_open (serial_t **out, dc_context_t *context, const char* name)
 {
 	if (out == NULL)
 		return -1; // EINVAL (Invalid argument)
-	char *name = NULL;
+
 	INFO (context, "Open: name=%s", name ? name : "");
 
 	// Allocate memory.
@@ -154,8 +154,7 @@ serial_open (serial_t **out, dc_context_t *context, int dev_fd)
 
 	// Open the device in non-blocking mode, to return immediately
 	// without waiting for the modem connection to complete.
-	//device->fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	device->fd = dev_fd;
+	device->fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (device->fd == -1) {
 		SYSERROR (context, errno);
 		free (device);
@@ -234,7 +233,6 @@ serial_configure (serial_t *device, int baudrate, int databits, int parity, int 
 
 	// Retrieve the current settings.
 	struct termios tty;
-	memset (&tty, 0, sizeof (tty));
 	if (tcgetattr (device->fd, &tty) != 0) {
 		SYSERROR (device->context, errno);
 		return -1;
@@ -415,6 +413,21 @@ serial_configure (serial_t *device, int baudrate, int databits, int parity, int 
 	// Apply the new settings.
 	if (tcsetattr (device->fd, TCSANOW, &tty) != 0) {
 		SYSERROR (device->context, errno);
+		return -1;
+	}
+
+	// tcsetattr() returns success if any of the requested changes could be
+	// successfully carried out. Therefore, when making multiple changes
+	// it may be necessary to follow this call with a further call to
+	// tcgetattr() to check that all changes have been performed successfully.
+
+	struct termios active;
+	if (tcgetattr (device->fd, &active) != 0) {
+		SYSERROR (device->context, errno);
+		return -1;
+	}
+	if (memcmp (&tty, &active, sizeof (struct termios) != 0)) {
+		ERROR (device->context, "Failed to set the terminal attributes.");
 		return -1;
 	}
 

@@ -199,7 +199,7 @@ hw_ostc3_transfer (hw_ostc3_device_t *device,
 
 
 dc_status_t
-hw_ostc3_device_open (dc_device_t **out, dc_context_t *context, int dev_fd)
+hw_ostc3_device_open (dc_device_t **out, dc_context_t *context, const char *name)
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -219,7 +219,7 @@ hw_ostc3_device_open (dc_device_t **out, dc_context_t *context, int dev_fd)
 	memset (device->fingerprint, 0, sizeof (device->fingerprint));
 
 	// Open the device.
-	int rc = serial_open (&device->port, context, dev_fd);
+	int rc = serial_open (&device->port, context, name);
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

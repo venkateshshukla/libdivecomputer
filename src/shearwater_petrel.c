@@ -77,7 +77,7 @@ str2num (unsigned char data[], unsigned int size, unsigned int offset)
 
 
 dc_status_t
-shearwater_petrel_device_open (dc_device_t **out, dc_context_t *context, int dev_fd)
+shearwater_petrel_device_open (dc_device_t **out, dc_context_t *context, const char *name)
 {
 	dc_status_t rc = DC_STATUS_SUCCESS;
 
@@ -98,7 +98,7 @@ shearwater_petrel_device_open (dc_device_t **out, dc_context_t *context, int dev
 	memset (device->fingerprint, 0, sizeof (device->fingerprint));
 
 	// Open the device.
-	rc = shearwater_common_open (&device->base, context, dev_fd);
+	rc = shearwater_common_open (&device->base, context, name);
 	if (rc != DC_STATUS_SUCCESS) {
 		free (device);
 		return rc;

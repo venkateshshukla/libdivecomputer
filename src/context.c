@@ -40,7 +40,7 @@ struct dc_context_t {
 #ifdef ENABLE_LOGGING
 	char msg[8192 + 32];
 #ifdef _WIN32
-	LARGE_INTEGER timestamp, frequency;
+	DWORD timestamp;
 #else
 	struct timeval timestamp;
 #endif
@@ -134,31 +134,28 @@ logfunc (dc_context_t *context, dc_loglevel_t loglevel, const char *file, unsign
 {
 	const char *loglevels[] = {"NONE", "ERROR", "WARNING", "INFO", "DEBUG", "ALL"};
 
-	unsigned long seconds = 0, microseconds = 0;
+	unsigned long seconds = 0, milliseconds = 0;
 
 #ifdef _WIN32
-	LARGE_INTEGER now, delta;
-	QueryPerformanceCounter(&now);
-	delta.QuadPart = now.QuadPart - context->timestamp.QuadPart;
-	delta.QuadPart *= 1000000;
-	delta.QuadPart /= context->frequency.QuadPart;
-	seconds = delta.QuadPart / 1000000;
-	microseconds = delta.QuadPart % 1000000;
+	DWORD now = GetTickCount ();
+	DWORD delta = now - context->timestamp;
+	seconds = delta / 1000;
+	milliseconds = delta % 1000;
 #else
 	struct timeval now, delta;
 	gettimeofday (&now, NULL);
 	timersub (&now, &context->timestamp, &delta);
 	seconds = delta.tv_sec;
-	microseconds = delta.tv_usec;
+	milliseconds = delta.tv_usec / 1000;
 #endif
 
 	if (loglevel == DC_LOGLEVEL_ERROR || loglevel == DC_LOGLEVEL_WARNING) {
-		fprintf (stderr, "[%li.%06li] %s: %s [in %s:%d (%s)]\n",
-			seconds, microseconds,
+		fprintf (stderr, "[%li.%03li] %s: %s [in %s:%d (%s)]\n",
+			seconds, milliseconds,
 			loglevels[loglevel], msg, file, line, function);
 	} else {
-		fprintf (stderr, "[%li.%06li] %s: %s\n",
-			seconds, microseconds,
+		fprintf (stderr, "[%li.%03li] %s: %s\n",
+			seconds, milliseconds,
 			loglevels[loglevel], msg);
 	}
 }
@@ -188,8 +185,7 @@ dc_context_new (dc_context_t **out)
 #ifdef ENABLE_LOGGING
 	memset (context->msg, 0, sizeof (context->msg));
 #ifdef _WIN32
-	QueryPerformanceFrequency(&context->frequency);
-	QueryPerformanceCounter(&context->timestamp);
+	context->timestamp = GetTickCount ();
 #else
 	gettimeofday (&context->timestamp, NULL);
 #endif

@@ -38,10 +38,10 @@
 #define EXITCODE(n) ((n) < 0 ? (n) : 0)
 
 dc_status_t
-shearwater_common_open (shearwater_common_device_t *device, dc_context_t *context, int dev_fd)
+shearwater_common_open (shearwater_common_device_t *device, dc_context_t *context, const char *name)
 {
 	// Open the device.
-	int rc = serial_open (&device->port, context, dev_fd);
+	int rc = serial_open (&device->port, context, name);
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		return DC_STATUS_IO;
