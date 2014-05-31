@@ -35,7 +35,7 @@
 #include <dirent.h>
 #include <fnmatch.h>
 
-#include <libusb-1.0/libusb.h>
+#include <libusb.h>
 #include <ftdi.h>
 
 #include "serial.h"
