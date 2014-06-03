@@ -119,14 +119,14 @@ serial_enumerate (serial_callback_t callback, void *userdata)
 
 //
 // Open the serial port.
-// Initialise ftdi_ftdi_ctx and use it to open the device
+// Initialise ftdi_context and use it to open the device
 //
 
 int
 serial_open (serial_t **out, dc_context_t *context, const char* name)
 {
-        if (out == NULL)
-                return -1; // EINVAL (Invalid argument)
+	if (out == NULL)
+		return -1; // EINVAL (Invalid argument)
 
         INFO (context, "Open: name=%s", name ? name : "");
 
@@ -136,6 +136,12 @@ serial_open (serial_t **out, dc_context_t *context, const char* name)
                 SYSERROR (context, errno);
                 return -1; // ENOMEM (Not enough space)
         }
+
+	struct ftdi_context *ftdi_ctx = (struct ftdi_context *) malloc (sizeof (struct ftdi_context));
+	if (ftdi_ctx == NULL) {
+		SYSERROR (context, errno);
+		return -1; // ENOMEM (Not enough space)
+	}
 
         // Library context.
         device->context = context;
@@ -149,7 +155,6 @@ serial_open (serial_t **out, dc_context_t *context, const char* name)
         device->nbits = 0;
 
 	// Initialize device ftdi context
-        struct ftdi_context *ftdi_ctx = device->ftdi_ctx;
         ftdi_init(ftdi_ctx);
 
         if (ftdi_set_interface(ftdi_ctx,INTERFACE_ANY)) {
@@ -172,7 +177,7 @@ serial_open (serial_t **out, dc_context_t *context, const char* name)
 		return -1;
 	}
 
-
+	device->ftdi_ctx = ftdi_ctx;
         *out = device;
 
         return 0;
@@ -185,13 +190,13 @@ serial_open (serial_t **out, dc_context_t *context, const char* name)
 int
 serial_close (serial_t *device)
 {
-        if (device == NULL)
+	if (device == NULL)
                 return 0;
 
         // Restore the initial terminal attributes.
 	// See if it is possible using libusb or libftdi
 
-        ftdi_free(device->ftdi_ctx);
+	ftdi_free(device->ftdi_ctx);
         ftdi_usb_close(device->ftdi_ctx);
 
         // Free memory.
@@ -207,7 +212,7 @@ serial_close (serial_t *device)
 int
 serial_configure (serial_t *device, int baudrate, int databits, int parity, int stopbits, int flowcontrol)
 {
-        if (device == NULL)
+	if (device == NULL)
                 return -1; // EINVAL (Invalid argument)
 
         INFO (device->context, "Configure: baudrate=%i, databits=%i, parity=%i, stopbits=%i, flowcontrol=%i",
@@ -246,6 +251,7 @@ serial_configure (serial_t *device, int baudrate, int databits, int parity, int 
                 ft_parity = ODD;
                 break;
         default:
+
                 return -1;
         }
 
@@ -304,16 +310,11 @@ serial_configure (serial_t *device, int baudrate, int databits, int parity, int 
 int
 serial_set_timeout (serial_t *device, long timeout)
 {
-        if (device == NULL)
+	if (device == NULL)
                 return -1; // EINVAL (Invalid argument)
 
         INFO (device->context, "Timeout: value=%li", timeout);
 
-	// No function are defined in libftdi for setting the timeout.
-	// Hence resorting to direct access even though not preferred.
-
-	device->ftdi_ctx->usb_read_timeout = timeout;
-        device->ftdi_ctx->usb_write_timeout = timeout;
         device->timeout = timeout;
 
         return 0;
@@ -327,7 +328,7 @@ serial_set_timeout (serial_t *device, long timeout)
 int
 serial_set_queue_size (serial_t *device, unsigned int input, unsigned int output)
 {
-        if (device == NULL)
+	if (device == NULL)
                 return -1; // ERROR_INVALID_PARAMETER (The parameter is incorrect)
 
 	ftdi_read_data_set_chunksize(device->ftdi_ctx, output);
@@ -340,7 +341,7 @@ serial_set_queue_size (serial_t *device, unsigned int input, unsigned int output
 int
 serial_set_halfduplex (serial_t *device, int value)
 {
-        if (device == NULL)
+	if (device == NULL)
                 return -1; // EINVAL (Invalid argument)
 
 	// Most ftdi chips support full duplex operation. ft232rl does.
@@ -354,7 +355,7 @@ serial_set_halfduplex (serial_t *device, int value)
 int
 serial_set_latency (serial_t *device, unsigned int milliseconds)
 {
-        if (device == NULL)
+	if (device == NULL)
 		return -1; // EINVAL (Invalid argument)
 
 	// Default for ftdi device is 16ms and can be set in the range
@@ -409,13 +410,14 @@ serial_read (serial_t *device, void *data, unsigned int size)
                 }
 
                 int n = ftdi_read_data (device->ftdi_ctx, (char *) data + nbytes, size - nbytes);
-                if (n < 0) {
+		if (n < 0) {
                         if (n == LIBUSB_ERROR_INTERRUPTED)
                                 continue; //Retry.
                         ERROR (device->context, ftdi_get_error_string(device->ftdi_ctx));
                         return -1; //Error during read call.
                 } else if (n == 0) {
-                         break; // EOF.
+			ERROR (device->context, "No data available.");
+                        break; // EOF.
                 }
 
                 nbytes += n;
@@ -430,7 +432,7 @@ serial_read (serial_t *device, void *data, unsigned int size)
 int
 serial_write (serial_t *device, const void *data, unsigned int size)
 {
-        if (device == NULL)
+	if (device == NULL)
                 return -1; // EINVAL (Invalid argument)
 
         struct timeval tve, tvb;
