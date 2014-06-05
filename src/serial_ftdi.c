@@ -415,9 +415,6 @@ serial_read (serial_t *device, void *data, unsigned int size)
                                 continue; //Retry.
                         ERROR (device->context, ftdi_get_error_string(device->ftdi_ctx));
                         return -1; //Error during read call.
-                } else if (n == 0) {
-			ERROR (device->context, "No data available.");
-                        break; // EOF.
                 }
 
                 nbytes += n;
