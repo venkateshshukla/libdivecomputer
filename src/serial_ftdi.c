@@ -46,8 +46,7 @@
 #define MODEM_DSR 0b00100000
 #define MODEM_CTS 0b00010000
 
-#define VID 0x0403
-#define PID 0x6001
+#define VID 0x0403 // Vendor ID of FTDI
 
 struct serial_t {
         /* Library ftdi_ctx. */
@@ -72,6 +71,24 @@ struct serial_t {
         unsigned int nbits;
 };
 
+// Used internally for opening ftdi devices
+int
+open_ftdi_device (struct ftdi_context *ftdi_ctx)
+{
+	int accepted_pids[] = { 0x6001, 0x6010, 0x6011 };
+	int num_accepted_pids = 3;
+	int i, pid, ret;
+	for (i = 0; i < num_accepted_pids; i++) {
+		pid = accepted_pids[i];
+		ret = ftdi_usb_open (ftdi_ctx, VID, pid);
+		if (ret == -3) // Device not found
+			continue;
+		else
+			return ret;
+	}
+	// No supported devices are attached.
+	return ret;
+}
 
 int
 serial_enumerate (serial_callback_t callback, void *userdata)
@@ -162,7 +179,7 @@ serial_open (serial_t **out, dc_context_t *context, const char* name)
 		return -1;
 	}
 
-        if (ftdi_usb_open(ftdi_ctx, VID, PID) < 0) {
+        if (open_ftdi_device(ftdi_ctx) < 0) {
                 ERROR (context, ftdi_get_error_string(ftdi_ctx));
                 return -1;
         }
