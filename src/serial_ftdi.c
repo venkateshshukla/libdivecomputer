@@ -75,8 +75,12 @@ struct serial_t {
 int
 open_ftdi_device (struct ftdi_context *ftdi_ctx)
 {
-	int accepted_pids[] = { 0x6001, 0x6010, 0x6011 };
-	int num_accepted_pids = 3;
+	int accepted_pids[] = { 0x6001, 0x6010, 0x6011, // Suunto (Smart Interface), Heinrichs Weikamp
+		0xF460, // Oceanic
+		0xF680, // Suunto
+		0x87D0, // Cressi (Leonardo)
+	};
+	int num_accepted_pids = 6;
 	int i, pid, ret;
 	for (i = 0; i < num_accepted_pids; i++) {
 		pid = accepted_pids[i];
