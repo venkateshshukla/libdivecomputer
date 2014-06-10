@@ -252,7 +252,11 @@ oceanic_vtpro_calibrate (oceanic_vtpro_device_t *device)
 
 
 dc_status_t
+#ifndef __ANDROID__
 oceanic_vtpro_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+oceanic_vtpro_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -274,7 +278,11 @@ oceanic_vtpro_device_open (dc_device_t **out, dc_context_t *context, const char 
 	device->port = NULL;
 
 	// Open the device.
+#ifndef __ANDROID__
 	int rc = serial_open (&device->port, context, name);
+#else
+	int rc = serial_open (&device->port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

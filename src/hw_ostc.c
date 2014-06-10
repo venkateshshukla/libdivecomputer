@@ -123,7 +123,11 @@ hw_ostc_send (hw_ostc_device_t *device, unsigned char cmd, unsigned int echo)
 
 
 dc_status_t
+#ifndef __ANDROID__
 hw_ostc_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+hw_ostc_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -143,7 +147,11 @@ hw_ostc_device_open (dc_device_t **out, dc_context_t *context, const char *name)
 	memset (device->fingerprint, 0, sizeof (device->fingerprint));
 
 	// Open the device.
+#ifndef __ANDROID__
 	int rc = serial_open (&device->port, context, name);
+#else
+	int rc = serial_open (&device->port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

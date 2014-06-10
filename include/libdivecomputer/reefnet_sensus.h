@@ -33,7 +33,11 @@ extern "C" {
 #define REEFNET_SENSUS_HANDSHAKE_SIZE 10
 
 dc_status_t
+#ifndef __ANDROID__
 reefnet_sensus_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+reefnet_sensus_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 reefnet_sensus_device_get_handshake (dc_device_t *device, unsigned char data[], unsigned int size);

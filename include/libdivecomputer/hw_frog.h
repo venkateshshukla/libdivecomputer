@@ -35,7 +35,11 @@ extern "C" {
 #define HW_FROG_CUSTOMTEXT_SIZE 13
 
 dc_status_t
+#ifndef __ANDROID__
 hw_frog_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+hw_frog_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 hw_frog_device_version (dc_device_t *device, unsigned char data[], unsigned int size);

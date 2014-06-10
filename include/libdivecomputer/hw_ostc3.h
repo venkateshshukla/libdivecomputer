@@ -35,7 +35,11 @@ extern "C" {
 #define HW_OSTC3_CUSTOMTEXT_SIZE 60
 
 dc_status_t
+#ifndef __ANDROID__
 hw_ostc3_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+hw_ostc3_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 hw_ostc3_device_version (dc_device_t *device, unsigned char data[], unsigned int size);

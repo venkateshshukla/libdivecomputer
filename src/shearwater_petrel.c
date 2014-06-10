@@ -77,7 +77,11 @@ str2num (unsigned char data[], unsigned int size, unsigned int offset)
 
 
 dc_status_t
+#ifndef __ANDROID__
 shearwater_petrel_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+shearwater_petrel_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	dc_status_t rc = DC_STATUS_SUCCESS;
 
@@ -98,7 +102,11 @@ shearwater_petrel_device_open (dc_device_t **out, dc_context_t *context, const c
 	memset (device->fingerprint, 0, sizeof (device->fingerprint));
 
 	// Open the device.
+#ifndef __ANDROID__
 	rc = shearwater_common_open (&device->base, context, name);
+#else
+	rc = shearwater_common_open (&device->base, context, usb_fd);
+#endif
 	if (rc != DC_STATUS_SUCCESS) {
 		free (device);
 		return rc;

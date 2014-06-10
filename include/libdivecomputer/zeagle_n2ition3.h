@@ -30,7 +30,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 dc_status_t
+#ifndef __ANDROID__
 zeagle_n2ition3_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+zeagle_n2ition3_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 #ifdef __cplusplus
 }

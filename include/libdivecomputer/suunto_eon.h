@@ -33,7 +33,11 @@ extern "C" {
 #define SUUNTO_EON_NAME_SIZE 20
 
 dc_status_t
+#ifndef __ANDROID__
 suunto_eon_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+suunto_eon_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 suunto_eon_device_write_name (dc_device_t *device, unsigned char data[], unsigned int size);

@@ -31,7 +31,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 dc_status_t
+#ifndef __ANDROID__
 shearwater_petrel_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+shearwater_petrel_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 shearwater_petrel_parser_create (dc_parser_t **parser, dc_context_t *context);

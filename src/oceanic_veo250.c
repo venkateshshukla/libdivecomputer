@@ -219,7 +219,11 @@ oceanic_veo250_quit (oceanic_veo250_device_t *device)
 
 
 dc_status_t
+#ifndef __ANDROID__
 oceanic_veo250_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+oceanic_veo250_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -242,8 +246,12 @@ oceanic_veo250_device_open (dc_device_t **out, dc_context_t *context, const char
 	device->port = NULL;
 	device->last = 0;
 
-	// Open the device.
+	// Open the device.a
+#ifndef __ANDROID__
 	int rc = serial_open (&device->port, context, name);
+#else
+	int rc = serial_open (&device->port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

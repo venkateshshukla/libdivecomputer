@@ -86,7 +86,11 @@ static const mares_common_layout_t mares_nemowide_layout = {
 
 
 dc_status_t
+#ifndef __ANDROID__
 mares_puck_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+mares_puck_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -106,7 +110,11 @@ mares_puck_device_open (dc_device_t **out, dc_context_t *context, const char *na
 	memset (device->fingerprint, 0, sizeof (device->fingerprint));
 
 	// Open the device.
+#ifndef __ANDROID__
 	int rc = serial_open (&device->base.port, context, name);
+#else
+	int rc = serial_open (&device->base.port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

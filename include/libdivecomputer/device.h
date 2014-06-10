@@ -70,7 +70,11 @@ typedef void (*dc_event_callback_t) (dc_device_t *device, dc_event_type_t event,
 typedef int (*dc_dive_callback_t) (const unsigned char *data, unsigned int size, const unsigned char *fingerprint, unsigned int fsize, void *userdata);
 
 dc_status_t
+#ifndef __ANDROID__
 dc_device_open (dc_device_t **out, dc_context_t *context, dc_descriptor_t *descriptor, const char *name);
+#else
+dc_device_open (dc_device_t **out, dc_context_t *context, dc_descriptor_t *descriptor, int usb_fd);
+#endif
 
 dc_family_t
 dc_device_get_type (dc_device_t *device);

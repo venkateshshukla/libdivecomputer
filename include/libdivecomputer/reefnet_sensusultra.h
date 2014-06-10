@@ -42,7 +42,11 @@ typedef enum reefnet_sensusultra_parameter_t {
 } reefnet_sensusultra_parameter_t;
 
 dc_status_t
+#ifndef __ANDROID__
 reefnet_sensusultra_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+reefnet_sensusultra_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 reefnet_sensusultra_device_set_maxretries (dc_device_t *device, unsigned int maxretries);

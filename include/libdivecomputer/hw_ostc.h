@@ -41,7 +41,11 @@ typedef enum hw_ostc_format_t {
 } hw_ostc_format_t;
 
 dc_status_t
+#ifndef __ANDROID__
 hw_ostc_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+hw_ostc_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 hw_ostc_device_md2hash (dc_device_t *device, unsigned char data[], unsigned int size);

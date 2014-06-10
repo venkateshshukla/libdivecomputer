@@ -59,7 +59,11 @@ typedef void (*serial_callback_t) (const char *name, void *userdata);
 
 int serial_enumerate (serial_callback_t callback, void *userdata);
 
-int serial_open (serial_t **device, dc_context_t *context, const char* name);
+#ifdef __ANDROID__
+	int serial_open (serial_t **device, dc_context_t *context, int usb_fd);
+#else
+	int serial_open(serial_t **device, dc_context_t *context, const char *name);
+#endif
 
 int serial_close (serial_t *device);
 

@@ -78,7 +78,11 @@ static const suunto_common2_layout_t suunto_helo2_layout = {
 
 
 dc_status_t
+#ifndef __ANDROID__
 suunto_vyper2_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+suunto_vyper2_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -97,7 +101,11 @@ suunto_vyper2_device_open (dc_device_t **out, dc_context_t *context, const char 
 	device->port = NULL;
 
 	// Open the device.
+#ifndef __ANDROID__
 	int rc = serial_open (&device->port, context, name);
+#else
+	int rc = serial_open (&device->port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

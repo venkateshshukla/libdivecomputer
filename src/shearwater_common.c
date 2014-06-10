@@ -38,10 +38,18 @@
 #define EXITCODE(n) ((n) < 0 ? (n) : 0)
 
 dc_status_t
+#ifndef __ANDROID__
 shearwater_common_open (shearwater_common_device_t *device, dc_context_t *context, const char *name)
+#else
+shearwater_common_open (shearwater_common_device_t *device, dc_context_t *context, int usb_fd)
+#endif
 {
 	// Open the device.
+#ifndef __ANDROID__
 	int rc = serial_open (&device->port, context, name);
+#else
+	int rc = serial_open (&device->port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		return DC_STATUS_IO;

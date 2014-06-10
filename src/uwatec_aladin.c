@@ -72,7 +72,11 @@ static const dc_device_vtable_t uwatec_aladin_device_vtable = {
 
 
 dc_status_t
+#ifndef __ANDROID__
 uwatec_aladin_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+#else
+uwatec_aladin_device_open (dc_device_t **out, dc_context_t *context, int usb_fd)
+#endif
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -94,7 +98,11 @@ uwatec_aladin_device_open (dc_device_t **out, dc_context_t *context, const char 
 	device->devtime = 0;
 
 	// Open the device.
+#ifndef __ANDROID__
 	int rc = serial_open (&device->port, context, name);
+#else
+	int rc = serial_open (&device->port, context, usb_fd);
+#endif
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);

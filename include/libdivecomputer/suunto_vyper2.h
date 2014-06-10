@@ -32,7 +32,11 @@ extern "C" {
 #define SUUNTO_VYPER2_VERSION_SIZE 0x04
 
 dc_status_t
+#ifndef __ANDROID__
 suunto_vyper2_device_open (dc_device_t **device, dc_context_t *context, const char *name);
+#else
+suunto_vyper2_device_open (dc_device_t **device, dc_context_t *context, int usb_fd);
+#endif
 
 dc_status_t
 suunto_vyper2_device_version (dc_device_t *device, unsigned char data[], unsigned int size);
