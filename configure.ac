@@ -90,14 +90,17 @@ AM_CONDITIONAL([OS_ANDROID], [test "$os_android" = "yes"])
 PKG_CHECK_MODULES([LIBUSB], [libusb-1.0], [have_libusb=yes], [have_libusb=no])
 if test "$have_libusb" = "yes"; then
 	AC_DEFINE([HAVE_LIBUSB], [1], [libusb support])
-	AC_SUBST([DEPENDENCIES], [libusb-1.0])
+	dependencies="libusb-1.0"
 fi
 
 # Checks for FTDI support.
 PKG_CHECK_MODULES([LIBFTDI1], [libftdi1], [have_libftdi1=yes], [have_libftdi1=no])
 if test "$have_libftdi1" = "yes"; then
 	AC_DEFINE([HAVE_LIBFTDI1], [1], [libftdi support])
+	dependencies+=" libftdi1"
 fi
+
+AC_SUBST([DEPENDENCIES], [$dependencies])
 
 # Checks for IrDA support.
 AC_CHECK_HEADERS([winsock2.h af_irda.h], [irda_win32=yes], [irda_win32=no], [
