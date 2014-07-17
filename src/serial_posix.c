@@ -414,7 +414,7 @@ serial_configure (serial_t *device, int baudrate, int databits, int parity, int 
 	// Apply the new settings.
 	if (tcsetattr (device->fd, TCSANOW, &tty) != 0) {
 		SYSERROR (device->context, errno);
-		return -1;
+		//return -1;
 	}
 
 	// Configure a custom baudrate if necessary.
