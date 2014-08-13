@@ -240,8 +240,14 @@ serial_close (serial_t *device)
         // Restore the initial terminal attributes.
 	// See if it is possible using libusb or libftdi
 
+	int ret = ftdi_usb_close(device->ftdi_ctx);
+	if (ret < 0) {
+		ERROR (device->context, "Unable to close the ftdi device : %d (%s)\n",
+				ret, ftdi_get_error_string(device->ftdi_ctx));
+		return ret;
+	}
+
 	ftdi_free(device->ftdi_ctx);
-        ftdi_usb_close(device->ftdi_ctx);
 
         // Free memory.
         free (device);
