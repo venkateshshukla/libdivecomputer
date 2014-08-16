@@ -54,7 +54,7 @@ fwupdate (const char *name, const char *hexfile)
 	dc_context_set_logfunc (context, logfunc, NULL);
 
 	message ("hw_ostc_device_open\n");
-	dc_status_t rc = hw_ostc_device_open (&device, context, name);
+	dc_status_t rc = hw_ostc_device_open (&device, context, (void *) name);
 	if (rc != DC_STATUS_SUCCESS) {
 		WARNING ("Error opening serial port.");
 		dc_context_free (context);

@@ -433,7 +433,7 @@ oceanic_atom2_quit (oceanic_atom2_device_t *device)
 
 
 dc_status_t
-oceanic_atom2_device_open (dc_device_t **out, dc_context_t *context, const char *name)
+oceanic_atom2_device_open (dc_device_t **out, dc_context_t *context, const void *params)
 {
 	if (out == NULL)
 		return DC_STATUS_INVALIDARGS;
@@ -453,7 +453,7 @@ oceanic_atom2_device_open (dc_device_t **out, dc_context_t *context, const char 
 	device->delay = 0;
 
 	// Open the device.
-	int rc = serial_open (&device->port, context, name);
+	int rc = serial_open (&device->port, context, params);
 	if (rc == -1) {
 		ERROR (context, "Failed to open the serial port.");
 		free (device);
