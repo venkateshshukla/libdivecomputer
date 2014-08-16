@@ -48,6 +48,8 @@
 
 #define VID 0x0403 // Vendor ID of FTDI
 
+#define MAX_BACKOFF 500 // Max milliseconds to wait before timing out.
+
 struct serial_t {
         /* Library ftdi_ctx. */
         dc_context_t *context;
@@ -430,6 +432,7 @@ serial_read (serial_t *device, void *data, unsigned int size)
         // The absolute target time.
         struct timeval tve;
 
+	static int backoff = 1;
         int init = 1;
         unsigned int nbytes = 0;
         while (nbytes < size) {
@@ -465,7 +468,18 @@ serial_read (serial_t *device, void *data, unsigned int size)
                                 continue; //Retry.
                         ERROR (device->context, ftdi_get_error_string(device->ftdi_ctx));
                         return -1; //Error during read call.
-                }
+                } else if (n == 0) {
+			// Exponential backoff.
+			if (backoff > MAX_BACKOFF) {
+				ERROR(device->context, "FTDI read timed out.");
+				return -1;
+			}
+			serial_sleep(device, backoff);
+			backoff *= 2;
+		} else {
+			// Reset backoff to 1 on success.
+			backoff = 1;
+		}
 
                 nbytes += n;
         }
