@@ -50,6 +50,13 @@
 
 #define MAX_BACKOFF 500 // Max milliseconds to wait before timing out.
 
+static int accepted_pids[] = {
+	0xF460, // Oceanic
+	0xF680, // Suunto
+	0x87D0, // Cressi (Leonardo)
+	0x6001, 0x6010, 0x6011, // Suunto (Smart Interface), Heinrichs Weikamp
+};
+
 struct serial_t {
         /* Library ftdi_ctx. */
         dc_context_t *context;
@@ -100,12 +107,7 @@ open_ftdi_device (struct ftdi_context *ftdi_ctx)
 int
 open_ftdi_device_fd (struct ftdi_context *ftdi_ctx, int usb_fd)
 {
-	int accepted_pids[] = { 0x6001, 0x6010, 0x6011, // Suunto (Smart Interface), Heinrichs Weikamp
-		0xF460, // Oceanic
-		0xF680, // Suunto
-		0x87D0, // Cressi (Leonardo)
-	};
-	int num_accepted_pids = 6;
+	int num_accepted_pids = sizeof (accepted_pids) / sizeof (accepted_pids[0]);
 	int i, pid, ret;
 	for (i = 0; i < num_accepted_pids; i++) {
 		pid = accepted_pids[i];
@@ -130,38 +132,33 @@ serial_enumerate (serial_callback_t callback, void *userdata)
         if (dp == NULL) {
                 return -1;
         }
-        // In android , the directory for USB devices are of the type /dev/bus/usb/001/002
-        // Hence recursively find devices. Also, their VID and PID should be checked. Use libusb for this?
-        // Or it seems it is better to leave this part to enumerate_devices in android.cpp using NDK Jni.
 
-        while ((dep = readdir (dp)) != NULL) {
-                char hubname[1024] = {0};
-                int n = snprintf(hubname, sizeof (hubname), "%s/%s", dirname, dep->d_name);
-                if (n < 0 || n > sizeof (hubname))
-                        return -1;
-                if ((ddp = opendir(hubname)) != NULL) {
-                        while((ep = readdir (ddp)) != NULL) {
-                                char devicename[1024];
-                                int n = snprintf (devicename, sizeof (devicename), "%s/%s", hubname, ep->d_name);
-                                if (n >= sizeof (devicename)) {
-                                        closedir (ddp);
-                                        closedir (dp);
-                                        return -1;
-                                }
-                                callback (devicename, userdata);
-                                break;
-                        }
-                        closedir (ddp);
-                } else {
-                        return -1;
-                }
-        }
+	// Use ftdi_usb_find_all to get a linked list of all ftdi devices and
+	// call the callback function for it sending libusb_device instead of
+	// const char *name
+	struct ftdi_context *ftdi_ctx = ftdi_new();
+	if (ftdi_ctx == NULL) {
+		return -1; // ENOMEM (Not enough space)
+	}
 
-        closedir (dp);
+	ftdi_init(ftdi_ctx);
 
+	int num = sizeof (accepted_pids) / sizeof (accepted_pids[0]);
+	int i;
+	for (i = 0; i < num; i++) {
+		struct libusb_device *dev;
+		struct ftdi_device_list *devlist = NULL;
+		int j = ftdi_usb_find_all( ftdi_ctx, &devlist, VID, accepted_pids[i]);
+		while (devlist != NULL) {
+			dev = devlist->dev;
+			callback (dev, userdata);
+			devlist = devlist->next;
+		}
+		ftdi_list_free(&devlist);
+	}
+	ftdi_free(ftdi_ctx);
         return 0;
 }
-
 
 //
 // Open the serial port.
